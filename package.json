@@ -1,16 +1,36 @@
 {
   "name": "quick-note-taker",
   "version": "1.0.0",
+  "description": "A desktop note-taking app built with Electron",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.quicknotetaker.app",
+    "productName": "Quick Note Taker",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "Vector.png"
+    },
+    "win": {
+      "icon": "Vector.png"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "Vector.png",
+      "package.json"
+    ]
   },
   "devDependencies": {
-    "electron": "^40.10.2"
+    "electron": "^40.8.3",
+    "electron-builder": "^24.0.0"
   },
-  "description": "",
-  "keywords": [],
-  "author": "",
+  "author": "Aayush Dahal",
   "license": "ISC",
   "type": "commonjs"
 }
