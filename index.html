@@ -5,6 +5,7 @@
     <title>Quick-Note-Taker</title>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    #word-count { font-size: 12px; color: #999; }
 
     body { font-family: system-ui; background: #f4f4f4; height: 100vh; }
 
@@ -105,6 +106,7 @@
     #save_status { font-size: 13px; color: gray; }
 </style>
 </head>
+<body>
 <div id="app">
     <div id="sidebar">
         <button id="new-note">📄 New Note</button>
@@ -119,7 +121,9 @@
             <button id="open-file">📂 Open File</button>
         </div>
         <p id="save_status"></p>
+        <p id="word-count">Words: 0 | Characters: 0</p>
     </div>
 </div>
 <script src="renderer.js"></script>
+</body>
 </html>

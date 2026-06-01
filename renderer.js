@@ -15,6 +15,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     let currentNoteId   = null;     // id of the note being edited
     let lastSavedContent = '';      // tracks unsaved changes
     let debounceTimer   = null;
+    // NEW: Update word and character count
+    function updateWordCount() {
+        const text = textarea.value;
+        const characters = text.length;
+        const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+        const wordCountEl = document.getElementById('word-count');
+        wordCountEl.textContent = `Words: ${words} | Characters: ${characters}`;
+    }
 
     // ─── RENDER NOTE LIST ──────────────────────────────────────────────────
     // Draws every note as a clickable item in the sidebar
@@ -65,6 +73,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         titleInput.value = note.title || '';
         textarea.value   = note.content || '';
         lastSavedContent = note.content || '';
+         updateWordCount();
         statusEl.textContent = '';
 
         renderNoteList(); // refresh sidebar to show active state
@@ -172,6 +181,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Auto-save when content changes
     textarea.addEventListener('input', () => {
+        updateWordCount();
         statusEl.textContent = 'Unsaved changes...';
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(saveCurrentNote, 5000);
