@@ -11,12 +11,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     const statusEl    = document.getElementById('save_status');
     const fontIncreaseBtn = document.getElementById('font-increase');
     const fontDecreaseBtn = document.getElementById('font-decrease');
+    const darkModeBtn = document.getElementById('dark-mode-toggle');
 
     // ─── STATE ─────────────────────────────────────────────────────────────
     let notes           = [];       // all notes loaded from JSON
     let currentNoteId   = null;     // id of the note being edited
     let lastSavedContent = '';      // tracks unsaved changes
     let debounceTimer   = null;
+
+
     // NEW: Font size control
     let currentFontSize = 16;
     function applyFontSize(size) {
@@ -30,6 +33,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     fontDecreaseBtn.addEventListener('click', async () => {
         applyFontSize(currentFontSize - 2);
         await window.electronAPI.saveSettings({ fontSize: currentFontSize });
+    });
+
+
+
+    // NEW: Dark mode toggle
+    let isDarkMode = false;
+
+    function applyDarkMode(enabled) {
+        isDarkMode = enabled;
+        if (enabled) {
+            document.body.classList.add('dark-mode');
+            darkModeBtn.textContent = '☀️ Light Mode';
+        } else {
+            document.body.classList.remove('dark-mode');
+            darkModeBtn.textContent = '🌙 Dark Mode';
+        }
+    }
+
+    darkModeBtn.addEventListener('click', async () => {
+        applyDarkMode(!isDarkMode);
+        await window.electronAPI.saveSettings({ darkMode: isDarkMode });
     });
 
 
@@ -240,6 +264,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // NEW: Load saved settings on startup
     const settings = await window.electronAPI.getSettings();
     applyFontSize(settings.fontSize || 16);
+    applyDarkMode(settings.darkMode || false);
 
     if (notes.length > 0) {
         // Open the most recently updated note
