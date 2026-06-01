@@ -87,13 +87,21 @@ window.addEventListener('DOMContentLoaded', async () => {
                 (note.content || '').toLowerCase().includes(filter.toLowerCase())
             );
 
+        // NEW: Sort pinned notes to the top
+        const sorted = [...filtered].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return 0;
+        });
 
-        filtered.forEach(note => {
+
+        sorted.forEach(note => {
             const item = document.createElement('div');
             // Add 'active' class to highlight the note currently open
             item.className = 'note-item' + (note.id === currentNoteId ? ' active' : '');
             item.innerHTML = `
                 <button class="note-item-delete" data-id="${note.id}">x</button>
+                 <button class="note-item-pin" data-id="${note.id}">${note.pinned ? '📌' : '📍'}</button>
                 <div class="note-item-title">${note.title || 'Untitled'}</div>
                 <div class="note-item-date">${new Date(note.updatedAt).toLocaleDateString()}</div>
             `;
@@ -109,6 +117,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             item.querySelector('.note-item-delete').addEventListener('click', async (e) => {
                 e.stopPropagation(); // prevent triggering the note open click
                 await deleteNote(note.id);
+            });
+
+            // Pin button
+            item.querySelector('.note-item-pin').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const index = notes.findIndex(n => n.id === note.id);
+                if (index !== -1) {
+                    notes[index].pinned = !notes[index].pinned;
+                    await window.electronAPI.saveNoteJson(notes[index]);
+                    renderNoteList(searchInput.value);
+                }
             });
 
             noteList.appendChild(item);
