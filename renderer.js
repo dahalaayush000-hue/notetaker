@@ -9,10 +9,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     const newNoteBtn  = document.getElementById('new-note');
     const noteList    = document.getElementById('note-list');
     const searchInput = document.getElementById('search');
+    const categoryFilter = document.getElementById('category-filter');
+    const categoryInput  = document.getElementById('note-category');
     const statusEl    = document.getElementById('save_status');
     const fontIncreaseBtn = document.getElementById('font-increase');
     const fontDecreaseBtn = document.getElementById('font-decrease');
     const darkModeBtn = document.getElementById('dark-mode-toggle');
+
     
 
     // ─── STATE ─────────────────────────────────────────────────────────────
@@ -59,12 +62,46 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-    // NEW: Search input listener
+    // NEW: Search input listener and category filter listener
     searchInput.addEventListener('input', () => {
+        renderNoteList(searchInput.value);
+    });
+    categoryFilter.addEventListener('change', () => {
         renderNoteList(searchInput.value);
     });
 
     
+    // NEW: Get a consistent color for a category name
+    function getCategoryColor(category) {
+        const colors = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e91e63'];
+        let hash = 0;
+        for (let i = 0; i < category.length; i++) {
+            hash = category.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    }
+
+    
+
+    // NEW: Update the category filter dropdown
+    function renderCategoryFilter() {
+        const categories = [...new Set(notes.map(n => n.category).filter(Boolean))];
+        const current = categoryFilter.value;
+        categoryFilter.innerHTML = '<option value="">All Categories</option>';
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            categoryFilter.selected = cat === current;
+            categoryFilter.appendChild(opt);
+        });
+        categoryFilter.value = current;
+    }
+
+
+
+
+
 
     // NEW: Update word and character count
     function updateWordCount() {
@@ -79,13 +116,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Draws every note as a clickable item in the sidebar
     function renderNoteList(filter='') {
         noteList.innerHTML = ''; // clear existing list
-
-        const filtered = filter.trim() === ''
-            ? notes
-            : notes.filter(note =>
+const activeCat = categoryFilter.value;
+        const filtered = notes.filter(note => {
+            const matchesSearch = filter.trim() === '' ||
                 (note.title || '').toLowerCase().includes(filter.toLowerCase()) ||
-                (note.content || '').toLowerCase().includes(filter.toLowerCase())
-            );
+                (note.content || '').toLowerCase().includes(filter.toLowerCase());
+            const matchesCategory = activeCat === '' || (note.category || '') === activeCat;
+            return matchesSearch && matchesCategory;
+        });
 
         // NEW: Sort pinned notes to the top
         const sorted = [...filtered].sort((a, b) => {
@@ -101,9 +139,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             item.className = 'note-item' + (note.id === currentNoteId ? ' active' : '');
             item.innerHTML = `
                 <button class="note-item-delete" data-id="${note.id}">x</button>
-                 <button class="note-item-pin" data-id="${note.id}">${note.pinned ? '📌' : '📍'}</button>
+                <button class="note-item-pin" data-id="${note.id}">${note.pinned ? '📌' : '📍'}</button>
                 <div class="note-item-title">${note.title || 'Untitled'}</div>
                 <div class="note-item-date">${new Date(note.updatedAt).toLocaleDateString()}</div>
+                ${note.category ? `<span class="note-item-category" style="background:${getCategoryColor(note.category)}">${note.category}</span>` : ''}
             `;
 
             // Click note item to open it
@@ -150,11 +189,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         currentNoteId    = note.id;
         titleInput.value = note.title || '';
         textarea.value   = note.content || '';
+        categoryInput.value = note.category || '';
         lastSavedContent = note.content || '';
-         updateWordCount();
+        updateWordCount();
         statusEl.textContent = '';
 
         renderNoteList(searchInput.value); // refresh sidebar to show active state
+        renderCategoryFilter();
     }
 
     // ─── SAVE CURRENT NOTE ─────────────────────────────────────────────────
@@ -165,7 +206,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         const note = {
             id:      currentNoteId,
             title:   titleInput.value || 'Untitled',
-            content: textarea.value
+            content: textarea.value,
+            category: categoryInput.value.trim()
         };
 
         await window.electronAPI.saveNoteJson(note);
@@ -178,6 +220,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         renderNoteList(searchInput.value);
+        renderCategoryFilter();
         statusEl.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
     }
 
@@ -199,6 +242,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         renderNoteList(searchInput.value);
+        renderCategoryFilter();
     }
 
     // ─── BUTTON LISTENERS ──────────────────────────────────────────────────
@@ -225,7 +269,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         titleInput.value     = '';
         textarea.value       = '';
         lastSavedContent     = '';
+        categoryInput.value  = '';
+
+    
         renderNoteList(searchInput.value);
+        renderCategoryFilter();
         titleInput.focus();                 // move cursor to title field
         statusEl.textContent = 'New note created.';
     });
@@ -314,4 +362,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     renderNoteList(searchInput.value);
+    renderCategoryFilter();
 });
