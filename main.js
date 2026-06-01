@@ -3,6 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 // NEW: Path for the notes JSON file
 const notesFilePath = path.join(app.getPath('userData'), 'notes.json');
+const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
 
 // NEW: Helper – read all notes from the JSON file
 function readNotes() {
@@ -16,6 +17,19 @@ function readNotes() {
 // NEW: Helper – write all notes to the JSON file
 function writeNotes(notes) {
     fs.writeFileSync(notesFilePath, JSON.stringify(notes, null, 2), 'utf-8');
+}
+// NEW: Read settings from file
+function readSettings() {
+    if (!fs.existsSync(settingsFilePath)) {
+        return { fontSize: 16 };
+    }
+    const raw = fs.readFileSync(settingsFilePath, 'utf-8');
+    return JSON.parse(raw);
+}
+
+// NEW: Write settings to file
+function writeSettings(settings) {
+    fs.writeFileSync(settingsFilePath, JSON.stringify(settings, null, 2), 'utf-8');
 }
 
 function createWindow() {
@@ -130,6 +144,19 @@ ipcMain.handle('delete-note', async (event, id) => {
     const notes = readNotes();
     const filtered = notes.filter(n => n.id !== id);
     writeNotes(filtered);
+    return { success: true };
+});
+
+// NEW: Get settings
+ipcMain.handle('get-settings', async () => {
+    return readSettings();
+});
+
+// NEW: Save settings
+ipcMain.handle('save-settings', async (event, settings) => {
+    const current = readSettings();
+    const updated = { ...current, ...settings };
+    writeSettings(updated);
     return { success: true };
 });
 

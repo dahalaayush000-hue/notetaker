@@ -9,12 +9,30 @@ window.addEventListener('DOMContentLoaded', async () => {
     const newNoteBtn  = document.getElementById('new-note');
     const noteList    = document.getElementById('note-list');
     const statusEl    = document.getElementById('save_status');
+    const fontIncreaseBtn = document.getElementById('font-increase');
+    const fontDecreaseBtn = document.getElementById('font-decrease');
 
     // ─── STATE ─────────────────────────────────────────────────────────────
     let notes           = [];       // all notes loaded from JSON
     let currentNoteId   = null;     // id of the note being edited
     let lastSavedContent = '';      // tracks unsaved changes
     let debounceTimer   = null;
+    // NEW: Font size control
+    let currentFontSize = 16;
+    function applyFontSize(size) {
+        currentFontSize = Math.min(32, Math.max(10, size));
+        textarea.style.fontSize = `${currentFontSize}px`;
+    }
+    fontIncreaseBtn.addEventListener('click', async () => {
+        applyFontSize(currentFontSize + 2);
+        await window.electronAPI.saveSettings({ fontSize: currentFontSize });
+    });
+    fontDecreaseBtn.addEventListener('click', async () => {
+        applyFontSize(currentFontSize - 2);
+        await window.electronAPI.saveSettings({ fontSize: currentFontSize });
+    });
+
+
     // NEW: Update word and character count
     function updateWordCount() {
         const text = textarea.value;
@@ -215,6 +233,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     // ─── STARTUP: LOAD ALL NOTES ───────────────────────────────────────────
 
     notes = await window.electronAPI.getNotes();
+    // NEW: Load saved settings on startup
+    const settings = await window.electronAPI.getSettings();
+    applyFontSize(settings.fontSize || 16);
 
     if (notes.length > 0) {
         // Open the most recently updated note
