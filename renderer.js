@@ -8,10 +8,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const openFileBtn = document.getElementById('open-file');
     const newNoteBtn  = document.getElementById('new-note');
     const noteList    = document.getElementById('note-list');
+    const searchInput = document.getElementById('search');
     const statusEl    = document.getElementById('save_status');
     const fontIncreaseBtn = document.getElementById('font-increase');
     const fontDecreaseBtn = document.getElementById('font-decrease');
     const darkModeBtn = document.getElementById('dark-mode-toggle');
+    
 
     // ─── STATE ─────────────────────────────────────────────────────────────
     let notes           = [];       // all notes loaded from JSON
@@ -57,6 +59,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
 
+    // NEW: Search input listener
+    searchInput.addEventListener('input', () => {
+        renderNoteList(searchInput.value);
+    });
+
+    
+
     // NEW: Update word and character count
     function updateWordCount() {
         const text = textarea.value;
@@ -68,10 +77,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // ─── RENDER NOTE LIST ──────────────────────────────────────────────────
     // Draws every note as a clickable item in the sidebar
-    function renderNoteList() {
+    function renderNoteList(filter='') {
         noteList.innerHTML = ''; // clear existing list
 
-        notes.forEach(note => {
+        const filtered = filter.trim() === ''
+            ? notes
+            : notes.filter(note =>
+                (note.title || '').toLowerCase().includes(filter.toLowerCase()) ||
+                (note.content || '').toLowerCase().includes(filter.toLowerCase())
+            );
+
+
+        filtered.forEach(note => {
             const item = document.createElement('div');
             // Add 'active' class to highlight the note currently open
             item.className = 'note-item' + (note.id === currentNoteId ? ' active' : '');
@@ -118,7 +135,7 @@ window.addEventListener('DOMContentLoaded', async () => {
          updateWordCount();
         statusEl.textContent = '';
 
-        renderNoteList(); // refresh sidebar to show active state
+        renderNoteList(searchInput.value); // refresh sidebar to show active state
     }
 
     // ─── SAVE CURRENT NOTE ─────────────────────────────────────────────────
@@ -141,7 +158,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             notes[index] = { ...notes[index], ...note, updatedAt: new Date().toISOString() };
         }
 
-        renderNoteList();
+        renderNoteList(searchInput.value);
         statusEl.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
     }
 
@@ -162,7 +179,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             statusEl.textContent = 'Note deleted.';
         }
 
-        renderNoteList();
+        renderNoteList(searchInput.value);
     }
 
     // ─── BUTTON LISTENERS ──────────────────────────────────────────────────
@@ -189,7 +206,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         titleInput.value     = '';
         textarea.value       = '';
         lastSavedContent     = '';
-        renderNoteList();
+        renderNoteList(searchInput.value);
         titleInput.focus();                 // move cursor to title field
         statusEl.textContent = 'New note created.';
     });
@@ -277,5 +294,5 @@ window.addEventListener('DOMContentLoaded', async () => {
         newNoteBtn.click();
     }
 
-    renderNoteList();
+    renderNoteList(searchInput.value);
 });

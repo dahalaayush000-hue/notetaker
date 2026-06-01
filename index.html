@@ -106,6 +106,15 @@
     button:hover { background: var(--button-hover); }
 
     #new-note { width: 100%; margin-bottom: 6px; }
+    #search {
+        padding: 7px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-note-item);
+        color: var(--text-sidebar);
+        font-size: 13px;
+        width: 100%;
+    }
 
     .note-item {
         background: var(--bg-note-item);
@@ -144,6 +153,7 @@
 <div id="app">
     <div id="sidebar">
         <button id="new-note">📄 New Note</button>
+        <input type="text" id="search" placeholder="🔍 Search notes...">
         <div id="note-list"></div>
     </div>
     <div id="editor">
