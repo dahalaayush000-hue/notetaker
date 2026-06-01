@@ -173,6 +173,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     // SAVE BUTTON
     saveBtn.addEventListener('click', async () => {
         await saveCurrentNote();
+         // NEW: Show native notification on manual save only
+        new Notification('Note Saved', {
+            body: `"${titleInput.value || 'Untitled'}" has been saved.`
+        });
     });
 
     // SAVE AS BUTTON (exports to a .txt file, kept from previous version)
