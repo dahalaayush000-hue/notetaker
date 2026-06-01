@@ -43,6 +43,10 @@ function createWindow() {
         }
     });
     win.loadFile('index.html');
+    // win.webContents.openDevTools();  // to open the developer tool 
+
+    
+
     /// NEW: Hide window instead of closing
     win.on('close', (event) => {
         event.preventDefault();    // stop the window from actually closing
@@ -145,6 +149,54 @@ ipcMain.handle('delete-note', async (event, id) => {
     const filtered = notes.filter(n => n.id !== id);
     writeNotes(filtered);
     return { success: true };
+});
+
+
+// NEW: Export note as PDF(New feature Added for the final project)
+// NEW: Export note as PDF
+ipcMain.handle('export-pdf', async (event, { title, content }) => {
+    const win = BrowserWindow.getAllWindows()[0];
+
+    const { filePath } = await dialog.showSaveDialog({
+        title: 'Export as PDF',
+        defaultPath: `${title || 'note'}.pdf`,
+        filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
+    });
+
+    if (!filePath) return { success: false };
+
+    // Create a hidden window with just the note content
+    const pdfWin = new BrowserWindow({
+        show: false,
+        webPreferences: { nodeIntegration: false }
+    });
+
+    const htmlContent = `
+        <html>
+        <head>
+            <style>
+                body { font-family: system-ui; padding: 40px; font-size: 16px; line-height: 1.6; }
+                h1 { font-size: 24px; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                pre { white-space: pre-wrap; word-wrap: break-word; }
+            </style>
+        </head>
+        <body>
+            <h1>${title || 'Untitled'}</h1>
+            <pre>${content}</pre>
+        </body>
+        </html>
+    `;
+
+    await pdfWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+    const pdfData = await pdfWin.webContents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4'
+    });
+
+    fs.writeFileSync(filePath, pdfData);
+    pdfWin.close();
+    return { success: true, filePath };
 });
 
 // NEW: Get settings

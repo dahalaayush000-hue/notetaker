@@ -15,6 +15,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const fontIncreaseBtn = document.getElementById('font-increase');
     const fontDecreaseBtn = document.getElementById('font-decrease');
     const darkModeBtn = document.getElementById('dark-mode-toggle');
+    const exportPdfBtn = document.getElementById('export-pdf'); //Feature 1: Exporting to pdf
 
     
 
@@ -294,6 +295,19 @@ const activeCat = categoryFilter.value;
             statusEl.textContent = `Exported to: ${result.filePath}`;
         }
     });
+
+//──────────────────────────────────────────────────Feature 1: Exporting as PDF ──────────────────────────────────────────────────
+    // NEW: Export PDF button
+    exportPdfBtn.addEventListener('click', async () => {
+        const result = await window.electronAPI.exportPdf(titleInput.value || 'note',  textarea.value);
+        if (result.success) {
+            statusEl.textContent = `PDF exported to: ${result.filePath}`;
+        } else {
+            statusEl.textContent = 'PDF export cancelled.';
+        }
+    });
+
+    
 
     // OPEN FILE BUTTON (imports a .txt file into the current note)
     openFileBtn.addEventListener('click', async () => {
