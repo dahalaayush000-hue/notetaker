@@ -218,7 +218,7 @@ app.whenReady().then(() => {
     Menu.setApplicationMenu(menu);
 
     // Create tray icon
-    tray = new Tray(path.join(__dirname, 'Vector.png'));
+    tray = new Tray(path.join(__dirname, 'tray-icon.png'));
     // NEW: Double-click tray icon to show window
 tray.on('double-click', () => {
     const win = BrowserWindow.getAllWindows()[0];
