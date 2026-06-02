@@ -19,6 +19,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const noteStatsBtn = document.getElementById('note-stats'); // Feature 3: Note Statistics
     const zoomInBtn  = document.getElementById('zoom-in');//Feature 4: Zoom-In
     const zoomOutBtn = document.getElementById('zoom-out');//Feature 4: Zoom-Out
+    const shortcutsBtn = document.getElementById('shortcuts');//Feature 5: Keyboard Shortcuts
 
     
 
@@ -342,7 +343,20 @@ const activeCat = categoryFilter.value;
         await window.electronAPI.zoomOut();
     });
 
-    
+    // NEW: Keyboard shortcut cheat sheet - Feature 5
+    shortcutsBtn.addEventListener('click', () => {
+        const message = 
+            `⌨️ Keyboard Shortcuts\n\n` +
+            `Ctrl+N / Cmd+N — New Note\n` +
+            `Ctrl+S / Cmd+S — Save Note\n` +
+            `Ctrl+Shift+S / Cmd+Shift+S — Save As\n` +
+            `Ctrl+O / Cmd+O — Open File\n` +
+            `Ctrl+Q / Cmd+Q — Quit App`;
+        alert(message);
+    });
+//__________________________________________________________________________________________________________________________________
+//__________________________________________________________________________________________________________________________________
+
 
     // OPEN FILE BUTTON (imports a .txt file into the current note)
     openFileBtn.addEventListener('click', async () => {
