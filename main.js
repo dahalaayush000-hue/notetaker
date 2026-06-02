@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem,Tray } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 // NEW: Path for the notes JSON file
@@ -39,11 +39,12 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            nodeIntegration: false
+            nodeIntegration: false,
+            spellcheck: true //Feature2:spell check
         }
     });
     win.loadFile('index.html');
-    // win.webContents.openDevTools();  // to open the developer tool 
+    // win.webContents.openDevTools();  // to open the developer tool console
 
     
 
@@ -152,8 +153,10 @@ ipcMain.handle('delete-note', async (event, id) => {
 });
 
 
-// NEW: Export note as PDF(New feature Added for the final project)
-// NEW: Export note as PDF
+
+//__________________________________________________________________________________________
+//_______________________________4 New Features____________________________________________
+// NEW: Export note as PDF(New feature :1, Added for the final project)
 ipcMain.handle('export-pdf', async (event, { title, content }) => {
     const win = BrowserWindow.getAllWindows()[0];
 
@@ -264,6 +267,30 @@ let tray = null;
 
 app.whenReady().then(() => {
     createWindow();
+//------------------------------------------------------------------------------------------------------
+    // NEW: Spell check context menu with suggestions (Feature 2)
+//------------------------------------------------------------------------------------------------------
+    app.on('web-contents-created', (event, contents) => {
+        contents.on('context-menu', (event, params) => {
+            if (params.misspelledWord) {
+                const menu = new Menu();
+                params.dictionarySuggestions.forEach(suggestion => {
+                    menu.append(new MenuItem({
+                        label: suggestion,
+                        click: () => contents.replaceMisspelling(suggestion)
+                    }));
+                });
+                if (params.dictionarySuggestions.length > 0) {
+                    menu.append(new MenuItem({ type: 'separator' }));
+                }
+                menu.append(new MenuItem({
+                    label: 'Add to Dictionary',
+                    click: () => contents.session.addWordToSpellCheckerDictionary(params.misspelledWord)
+                }));
+                menu.popup();
+            }
+        });
+    });
 
     // ... menu setup code ...
     const menu = Menu.buildFromTemplate(menuTemplate);
