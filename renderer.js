@@ -17,6 +17,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const darkModeBtn = document.getElementById('dark-mode-toggle');
     const exportPdfBtn = document.getElementById('export-pdf'); //Feature 1: Exporting to pdf
     const noteStatsBtn = document.getElementById('note-stats'); // Feature 3: Note Statistics
+    const zoomInBtn  = document.getElementById('zoom-in');//Feature 4: Zoom-In
+    const zoomOutBtn = document.getElementById('zoom-out');//Feature 4: Zoom-Out
 
     
 
@@ -329,6 +331,15 @@ const activeCat = categoryFilter.value;
             `Longest Title: "${longestNote.title || 'None'}"`;
 
         alert(message);
+    });
+
+    // NEW: Zoom in/out - Feature 4
+    zoomInBtn.addEventListener('click', async () => {
+        await window.electronAPI.zoomIn();
+    });
+
+    zoomOutBtn.addEventListener('click', async () => {
+        await window.electronAPI.zoomOut();
     });
 
     

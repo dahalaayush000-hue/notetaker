@@ -206,6 +206,24 @@ ipcMain.handle('export-pdf', async (event, { title, content }) => {
 ipcMain.handle('get-settings', async () => {
     return readSettings();
 });
+//------------------------------------------------------------------------------------------------------
+    // NEW: Zoom in and Zoom Out(Feature 4)
+//------------------------------------------------------------------------------------------
+// NEW: Zoom in
+ipcMain.handle('zoom-in', async () => {
+    const win = BrowserWindow.getAllWindows()[0];
+    const current = win.webContents.getZoomFactor();
+    win.webContents.setZoomFactor(Math.min(current + 0.1, 2.0));
+    return { success: true };
+});
+
+// NEW: Zoom out
+ipcMain.handle('zoom-out', async () => {
+    const win = BrowserWindow.getAllWindows()[0];
+    const current = win.webContents.getZoomFactor();
+    win.webContents.setZoomFactor(Math.max(current - 0.1, 0.5));
+    return { success: true };
+});
 
 // NEW: Save settings
 ipcMain.handle('save-settings', async (event, settings) => {
