@@ -16,6 +16,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const fontDecreaseBtn = document.getElementById('font-decrease');
     const darkModeBtn = document.getElementById('dark-mode-toggle');
     const exportPdfBtn = document.getElementById('export-pdf'); //Feature 1: Exporting to pdf
+    const noteStatsBtn = document.getElementById('note-stats'); // Feature 3: Note Statistics
 
     
 
@@ -296,7 +297,8 @@ const activeCat = categoryFilter.value;
         }
     });
 
-//──────────────────────────────────────────────────Feature 1: Exporting as PDF ──────────────────────────────────────────────────
+    //__________________________________________________________________________________________________________________________________
+//──────────────────────────────────────────────────Listeners for added features ──────────────────────────────────────────────────
     // NEW: Export PDF button
     exportPdfBtn.addEventListener('click', async () => {
         const result = await window.electronAPI.exportPdf(titleInput.value || 'note',  textarea.value);
@@ -305,6 +307,28 @@ const activeCat = categoryFilter.value;
         } else {
             statusEl.textContent = 'PDF export cancelled.';
         }
+    });
+
+    // NEW: Note statistics - Feature 3
+    noteStatsBtn.addEventListener('click', () => {
+        const totalNotes = notes.length;
+        const totalWords = notes.reduce((sum, note) => {
+            const words = (note.content || '').trim() === '' ? 0 
+                : (note.content || '').trim().split(/\s+/).length;
+            return sum + words;
+        }, 0);
+        const avgWords = totalNotes === 0 ? 0 : Math.round(totalWords / totalNotes);
+        const longestNote = notes.reduce((longest, note) => 
+            (note.title || '').length > (longest.title || '').length ? note : longest
+        , { title: '' });
+
+        const message = `📊 Note Statistics\n\n` +
+            `Total Notes: ${totalNotes}\n` +
+            `Total Words: ${totalWords}\n` +
+            `Average Words per Note: ${avgWords}\n` +
+            `Longest Title: "${longestNote.title || 'None'}"`;
+
+        alert(message);
     });
 
     
