@@ -4,11 +4,11 @@
 
 | Name | Student ID | Role |
 |------|------------|------|
-| Dahal Aayush |  | Export as PDF feature |
-| Chapagain Shankar |  | Zoom In/Out feature |
+| Dahal Aayush | 2024991017 | Export as PDF feature |
+| Chapagain Shankar | 2024591075 | Zoom In/Out feature |
 | Bhusal Prabin |  | Note Statistics feature |
-| Khadka Pawan |  | Spell Check feature |
-| Neupane Roshan |  | Keyboard Shortcut Cheat Sheet feature |
+| Khadka Pawan | 2024991080 | Spell Check feature |
+| Neupane Roshan | 2024991012 | Keyboard Shortcut Cheat Sheet feature |
 
 **Group Number:** []
 
