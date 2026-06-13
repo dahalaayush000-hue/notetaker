@@ -1,9 +1,10 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, MenuItem,Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu,Tray } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 // NEW: Path for the notes JSON file
 const notesFilePath = path.join(app.getPath('userData'), 'notes.json');
 const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
+const backupFolderPath = path.join(app.getPath('documents'), 'QuickNoteTaker_Backups'); // Path for the autobackup feature:2
 
 // NEW: Helper – read all notes from the JSON file
 function readNotes() {
@@ -40,7 +41,6 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
-            spellcheck: true //Feature2:spell check
         }
     });
     win.loadFile('index.html');
@@ -54,6 +54,23 @@ function createWindow() {
         win.hide();                // hide it instead 
 });
 }
+
+//--------------------------------------NEW: Auto-backup helper function (Feature 2)----------------------------------
+//------------------------------------------------------------------------------------------------------------------
+function backupNotes() {
+    if (!fs.existsSync(notesFilePath)) return;
+    if (!fs.existsSync(backupFolderPath)) {
+        fs.mkdirSync(backupFolderPath, { recursive: true });
+    }
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFile = path.join(backupFolderPath, `notes-backup-${timestamp}.json`);
+    fs.copyFileSync(notesFilePath, backupFile);
+    console.log(`Backup saved: ${backupFile}`);
+}
+
+
+
+
 
 // --- HANDLERS ---
 
@@ -151,7 +168,15 @@ ipcMain.handle('delete-note', async (event, id) => {
     writeNotes(filtered);
     return { success: true };
 });
-
+// NEW: Manual backup trigger (Feature 2)------------------2
+ipcMain.handle('backup-now', async () => {
+    try {
+        backupNotes();
+        return { success: true, path: backupFolderPath };
+    } catch (err) {
+        return { success: false };
+    }
+});
 
 
 //__________________________________________________________________________________________
@@ -285,31 +310,9 @@ let tray = null;
 
 app.whenReady().then(() => {
     createWindow();
-//------------------------------------------------------------------------------------------------------
-    // NEW: Spell check context menu with suggestions (Feature 2)
-//------------------------------------------------------------------------------------------------------
-    app.on('web-contents-created', (event, contents) => {
-        contents.on('context-menu', (event, params) => {
-            if (params.misspelledWord) {
-                const menu = new Menu();
-                params.dictionarySuggestions.forEach(suggestion => {
-                    menu.append(new MenuItem({
-                        label: suggestion,
-                        click: () => contents.replaceMisspelling(suggestion)
-                    }));
-                });
-                if (params.dictionarySuggestions.length > 0) {
-                    menu.append(new MenuItem({ type: 'separator' }));
-                }
-                menu.append(new MenuItem({
-                    label: 'Add to Dictionary',
-                    click: () => contents.session.addWordToSpellCheckerDictionary(params.misspelledWord)
-                }));
-                menu.popup();
-            }
-        });
-    });
-
+    // NEW: Start auto-backup every 5 minutes (Feature 2)
+    setInterval(backupNotes, 5 * 60 * 1000);
+    
     // ... menu setup code ...
     const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);

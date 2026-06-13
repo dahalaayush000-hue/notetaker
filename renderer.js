@@ -16,6 +16,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const fontDecreaseBtn = document.getElementById('font-decrease');
     const darkModeBtn = document.getElementById('dark-mode-toggle');
     const exportPdfBtn = document.getElementById('export-pdf'); //Feature 1: Exporting to pdf
+    const backupBtn = document.getElementById('backup-now');//Feature 2: Backup
     const noteStatsBtn = document.getElementById('note-stats'); // Feature 3: Note Statistics
     const zoomInBtn  = document.getElementById('zoom-in');//Feature 4: Zoom-In
     const zoomOutBtn = document.getElementById('zoom-out');//Feature 4: Zoom-Out
@@ -312,6 +313,19 @@ const activeCat = categoryFilter.value;
         }
     });
 
+    // NEW: Manual backup button - Feature 2
+    backupBtn.addEventListener('click', async () => {
+        const result = await window.electronAPI.backupNow();
+        if (result.success) {
+            statusEl.textContent = `Backup saved to: ${result.path}`;
+            new Notification('Backup Complete', {
+                body: 'Your notes have been backed up successfully.'
+            });
+        } else {
+            statusEl.textContent = 'Backup failed.';
+        }
+    });
+
     // NEW: Note statistics - Feature 3
     noteStatsBtn.addEventListener('click', () => {
         const totalNotes = notes.length;
@@ -342,6 +356,8 @@ const activeCat = categoryFilter.value;
     zoomOutBtn.addEventListener('click', async () => {
         await window.electronAPI.zoomOut();
     });
+
+
 
     // NEW: Keyboard shortcut cheat sheet - Feature 5
     shortcutsBtn.addEventListener('click', () => {
