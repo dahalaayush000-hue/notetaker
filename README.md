@@ -1,80 +1,85 @@
-# Quick Note Taker 
+# Quick Note Taker
 
-## 1. Group Information
+Group 3 — Software Engineering Final Project
 
-| Name | Student ID | Role |
-|------|------------|------|
-| Dahal Aayush | 2024991017 | Export as PDF feature |
-| Chapagain Shankar | 2024591075 | Zoom In/Out feature |
-| Bhusal Prabin |  | Note Statistics feature |
-| Khadka Pawan | 2024991080 | Spell Check feature |
-| Neupane Roshan | 2024991012 | Keyboard Shortcut Cheat Sheet feature | 
+## Group Members
 
-**Group Number:** []
-
----
-
-## 2. App Description
-
-Quick Note Taker is a desktop note-taking application built with Electron. It allows users to create, edit, save, and manage multiple notes locally. Notes are stored in a JSON file on the user's machine. The app includes a sidebar for browsing notes, real-time search, dark mode, font size control, note pinning, categories, and automatic saving. It runs on both Windows and macOS.
+| Name | Student ID | Feature |
+|------|------------|---------|
+| Dahal Aayush | [2024991017] | Export as PDF |
+| Chapagain Shankar | [2024591075] | Zoom In/Out |
+| Bhusal Prabin | [2024891036] | Note Statistics |
+| Khadka Pawan | [2024991080] | Auto-backup |
+| Neupane Roshan | [2024991012] | Keyboard Shortcuts |
 
 ---
 
-## 3. New Features Added
+## What the App Does
 
-### Export as PDF
-**Built by:** Dahal Aayush  
-**Description:** Exports the currently open note as a PDF file. A save dialog lets the user choose where to save it. A hidden BrowserWindow is created with just the note title and content, and Electron's `printToPDF` API converts it to a PDF file.  
-**Files modified:** `main.js`, `preload.js`, `renderer.js`, `index.html`
-
-### Zoom In/Out
-**Built by:** Chapagain Shankar  
-**Description:** Two buttons (🔍+ and 🔍-) zoom the entire app in and out using Electron's `webContents.setZoomFactor()` API. Zoom is capped between 0.5x and 2.0x to prevent unusable extremes.  
-**Files modified:** `main.js`, `preload.js`, `renderer.js`, `index.html`
-
-### Note Statistics
-**Built by:** Bhusal Prabin  
-**Description:** A Stats button shows a popup with live statistics calculated from all notes in memory — total notes, total words, average words per note, and the longest note title. Uses JavaScript's `reduce()` method to calculate totals.  
-**Files modified:** `renderer.js`, `index.html`
-
-### Spell Check
-**Built by:** Khadka Pawan  
-**Description:** Real-time spell checking is enabled in the note editor using Electron's built-in Chromium spell checker. Misspelled words are underlined in red. Right-clicking a misspelled word shows correction suggestions using a custom context menu built with Electron's `Menu` and `MenuItem` APIs.  
-**Files modified:** `main.js`
-
-### Keyboard Shortcut Cheat Sheet
-**Built by:** Neupane Roshan  
-**Description:** A Shortcuts button shows a popup listing all keyboard shortcuts available in the app — New Note, Save, Save As, Open File, and Quit. Built entirely in the renderer process with no IPC required.  
-**Files modified:** `renderer.js`, `index.html`
+Quick Note Taker is a desktop app built with Electron. You can create multiple notes, edit them, and they save automatically. Notes are stored locally as a JSON file. The app has a sidebar to switch between notes, search, dark mode, categories, and runs in the system tray so it stays open in the background.
 
 ---
 
-## 4. How to Run the App
+## New Features
 
-1. Install Node.js from https://nodejs.org
-2. Open a terminal in the project folder
-3. Run: `npm install`
-4. Run: `npm start`
+Export as PDF— Dahal Aayush
 
----
+Exports the current note as a PDF file. A save dialog lets you pick where to save it. The app creates a hidden window with just the note title and content, converts it to PDF using Electron's printToPDF API, then saves it to disk.
 
-## 5. How to Install the App
-
-**macOS:**
-1. Open the `dist/` folder
-2. Double-click `Quick Note Taker-1.0.0-arm64.dmg`
-3. Drag the app to your Applications folder
-4. Open from Applications
-
-**Windows:**
-1. Open the `dist/` folder
-2. Run the `.exe` installer
-3. Follow the installation steps
-4. Open from the Start menu
+Files changed: `main.js`, `preload.js`, `renderer.js`, `index.html`
 
 ---
 
-## 6. Features from Class
+Zoom In/Out— Chapagain Shankar
+
+Two buttons zoom the entire app in and out using Electron's webContents.setZoomFactor() API. Each click changes zoom by 10%. Zoom is limited between 50% and 200%.
+
+Files changed: `main.js`, `preload.js`, `renderer.js`, `index.html`
+
+---
+
+Note Statistics— Bhusal Prabin
+
+A Stats button shows a popup with live data about your notes — total notes, total words, average words per note, and the longest note title. All calculated from the notes already in memory, no file reading needed.
+
+Files changed: `renderer.js`, `index.html`
+
+---
+
+Auto-backup— Khadka Pawan
+
+Notes are automatically backed up every 5 minutes to a QuickNoteTaker_Backups folder in your Documents. Each backup is a timestamped copy of the notes file. There is also a manual Backup button for immediate backup.
+
+Files changed: `main.js`, `preload.js`, `renderer.js`, `index.html`
+
+---
+
+Keyboard Shortcut Cheat Sheet— Neupane Roshan
+
+A Shortcuts button shows a popup listing all keyboard shortcuts in the app. No IPC needed — runs entirely in the renderer process.
+
+Files changed: `renderer.js`, `index.html`
+
+---
+
+## How to Run
+
+```bash
+git clone https://github.com/dahalaayush000-hue/notetaker.git
+cd notetaker
+npm install
+npm start
+```
+
+---
+
+## How to Install
+
+macOS — open the `.dmg` file from the `dist/` folder and drag the app to Applications.
+
+Windows — run the `.exe` installer from the `dist/` folder and follow the steps.
+
+## Features from Class
 
 - Create, edit, save, and delete multiple notes
 - Auto-save with 5-second debounce timer
